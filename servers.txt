@@ -1,0 +1,7 @@
+php -S localhost:8000
+node server.js
+http://localhost:8000/index.php
+
+git add .
+git commit -m ""
+git push origin development
