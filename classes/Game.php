@@ -1,4 +1,6 @@
 <?php
+require_once 'Database.php';
+
 class Game {
     private $db;
 
@@ -19,6 +21,7 @@ class Game {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
     public function joinGame($game_id, $player2_id) {
         $stmt = $this->db->prepare("UPDATE games SET player2_id = :player2_id WHERE id = :game_id AND player2_id IS NULL");
         $stmt->bindParam(':player2_id', $player2_id);
@@ -28,4 +31,9 @@ class Game {
 
     // Add more game-related methods as needed
 }
+
+// Example usage
+$dbInstance = Database::getInstance();
+$dbConnection = $dbInstance->connect();
+$game = new Game($dbConnection);
 ?>

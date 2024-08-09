@@ -8,7 +8,8 @@ if (!isset($_SESSION['user_id'])) {
 require_once 'classes/Database.php';
 require_once 'classes/Message.php';
 
-$db = Database::getInstance()->getConnection();
+// Update to use the connect method
+$db = Database::getInstance()->connect();
 $message = new Message($db);
 
 $user_id = $_SESSION['user_id'];

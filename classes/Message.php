@@ -2,6 +2,7 @@
 class Message {
     private $db;
 
+    // Update constructor to accept a database connection
     public function __construct($db) {
         $this->db = $db;
     }

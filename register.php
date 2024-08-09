@@ -7,7 +7,9 @@ $successMessage = '';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $db = Database::getInstance()->getConnection();
+    // Update to use the new Database class with parameters
+    $dbInstance = Database::getInstance('localhost', 'chessapp', 'pepe', 'pepe');
+    $db = $dbInstance->connect();
     $user = new User($db);
     $username = $_POST['username'];
     $password = $_POST['password'];

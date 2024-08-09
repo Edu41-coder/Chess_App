@@ -2,8 +2,10 @@
 class Move {
     private $db;
 
-    public function __construct($db) {
-        $this->db = $db;
+    public function __construct() {
+        // Get the database instance and establish the connection
+        $database = Database::getInstance();
+        $this->db = $database->connect();
     }
 
     public function recordMove($game_id, $player_id, $move, $move_number) {

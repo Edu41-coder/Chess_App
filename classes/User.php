@@ -3,6 +3,7 @@ class User
 {
     private $db;
 
+    // Update constructor to accept a database connection
     public function __construct($db)
     {
         $this->db = $db;
@@ -67,3 +68,4 @@ class User
 
     // Add more user-related methods as needed
 }
+?>

@@ -15,7 +15,8 @@ $gameMode = $_POST['gameMode'];
 // Debugging: Log received data
 error_log("Received data - userId: $userId, result: $result, gameMode: $gameMode");
 
-$db = Database::getInstance()->getConnection();
+// Update to use the new connect method
+$db = Database::getInstance()->connect();
 $userStats = new UserStats($db);
 
 if ($userStats->updateStats($userId, $result, $gameMode)) {

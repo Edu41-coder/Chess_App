@@ -4,7 +4,10 @@ require_once 'classes/Database.php';
 require_once 'classes/User.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $db = Database::getInstance()->getConnection();
+    // Get the database instance and connection
+    $dbInstance = Database::getInstance();
+    $db = $dbInstance->connect();
+    
     $user = new User($db);
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -21,14 +24,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $userData = $user->getUserByUsername($username);
 
-        if ($userData && $password === $userData['password']) { // No password_verify
+        // Log the retrieved user data for debugging
+        error_log("User data: " . print_r($userData, true));
+
+        if ($userData && $password === $userData['password']) {
             $_SESSION['user_id'] = $userData['id'];
             $_SESSION['role'] = $userData['role'];
             header('Location: index.php');
             exit;
         } else {
             $errors[] = "Invalid username or password.";
+            // Log the error for debugging
+            error_log("Invalid username or password for username: $username");
         }
+    } else {
+        // Log the validation errors
+        error_log("Validation errors: " . implode(", ", $errors));
     }
 }
 ?>

@@ -8,8 +8,9 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$db = Database::getInstance();
-$user = new User($db->getConnection());
+// Update to use the new Database class with parameters
+$db = Database::getInstance('localhost', 'chessapp', 'pepe', 'pepe');
+$user = new User($db->connect());
 $username = $user->getUsernameById($_SESSION['user_id']);
 
 // Ensure the PGN files directory exists

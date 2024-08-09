@@ -52,7 +52,7 @@ class UserStats {
     }
 
     public static function getStats($user_id) {
-        $db = Database::getInstance()->getConnection();
+        $db = Database::getInstance()->connect();
         $stmt = $db->prepare("SELECT * FROM user_stats WHERE user_id = :user_id");
         $stmt->bindParam(':user_id', $user_id);
         $stmt->execute();

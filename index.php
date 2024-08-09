@@ -12,8 +12,10 @@ require_once 'classes/UserStats.php';
 // Fetch the username if the user is logged in
 $username = '';
 if (isset($_SESSION['user_id'])) {
-    $db = Database::getInstance();
-    $user = new User($db->getConnection());
+    // Update to use the new Database class
+    $db = Database::getInstance('localhost', 'chessapp', 'pepe', 'pepe');
+    $conn = $db->connect();
+    $user = new User($conn);
     $username = $user->getUsernameById($_SESSION['user_id']);
 }
 ?>
