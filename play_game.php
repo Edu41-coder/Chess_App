@@ -55,6 +55,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'player') {
                 </select>
                 <button id="joinOnlineGame" class="btn btn-primary mt-3">Join Selected Game</button>
             </div>
+            <div id="chatContainer" style="display: none;">
+                <h2>Chat</h2>
+                <div id="chatMessages" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
+                <input type="text" id="chatInput" class="form-control mt-2" placeholder="Type a message...">
+                <button id="sendChat" class="btn btn-primary mt-2">Send</button>
+            </div>
         </div>
     </div>
     <div class="row mt-3">
@@ -68,31 +74,30 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'player') {
 </div>
 
 <!-- Scripts -->
-</script>
 <script src="js/jquery-3.6.0.min.js"></script>
 <script>
-// Intercept addEventListener
-const originalAddEventListener = EventTarget.prototype.addEventListener;
-EventTarget.prototype.addEventListener = function(type, listener, options) {
-    if (type === 'mousedown' || type === 'touchstart') {
-        if (typeof options === 'object') {
-            options.passive = false;
-        } else {
-            options = { passive: false };
+    // Intercept addEventListener
+    const originalAddEventListener = EventTarget.prototype.addEventListener;
+    EventTarget.prototype.addEventListener = function(type, listener, options) {
+        if (type === 'mousedown' || type === 'touchstart') {
+            if (typeof options === 'object') {
+                options.passive = false;
+            } else {
+                options = { passive: false };
+            }
         }
-    }
-    return originalAddEventListener.call(this, type, listener, options);
-};
-// Intercept console.warn to suppress specific messages
-const originalWarn = console.warn;
-console.warn = function(...args) {
-    if (typeof args[0] === 'string' && args[0].includes('Unable to preventDefault inside passive event listener')) {
-        // Do nothing, effectively suppressing the warning
-        return;
-    }
-    // For all other warnings, use the original console.warn
-    originalWarn.apply(console, args);
-};
+        return originalAddEventListener.call(this, type, listener, options);
+    };
+    // Intercept console.warn to suppress specific messages
+    const originalWarn = console.warn;
+    console.warn = function(...args) {
+        if (typeof args[0] === 'string' && args[0].includes('Unable to preventDefault inside passive event listener')) {
+            // Do nothing, effectively suppressing the warning
+            return;
+        }
+        // For all other warnings, use the original console.warn
+        originalWarn.apply(console, args);
+    };
 </script>
 <link rel="stylesheet" href="styles/chessboard.css">
 <script src="js/chess.js"></script>
@@ -143,6 +148,8 @@ console.warn = function(...args) {
         currentGame = new OnlineGame('chessboard', playerColor, 'ws://localhost:8080');
         showOnlineGameOptions();
         currentGame.updateUI(false);
+        document.getElementById("chatContainer").style.display = "block";
+        setupChatHandlers();
     }
 
     function showOnlineGameOptions() {
@@ -203,11 +210,24 @@ console.warn = function(...args) {
         document.getElementById("startGame").style.display = "inline-block";
     }
 
+    function setupChatHandlers() {
+        const chatInput = document.getElementById('chatInput');
+        const sendChatButton = document.getElementById('sendChat');
+        sendChatButton.addEventListener('click', () => {
+            const message = chatInput.value;
+            if (message && currentGame) {
+                currentGame.sendChatMessage(message);
+                chatInput.value = '';
+            }
+        });
+    }
+
     window.addEventListener('beforeunload', function(e) {
         if (currentGame && currentGame instanceof OnlineGame) {
             currentGame.endGame('Player left', 'loss');
         }
     });
+
     document.getElementById('gameMode').addEventListener('change', function() {
         const gameMode = this.value;
         if (currentGame) {
@@ -229,9 +249,11 @@ console.warn = function(...args) {
             document.getElementById("startGame").style.display = "inline-block";
         }
     });
+
     document.getElementById('startGame').addEventListener('click', function() {
         initializeGame(document.getElementById('gameMode').value);
     });
+
     document.getElementById('resignGame').addEventListener('click', function() {
         if (currentGame) {
             if (currentGame instanceof OnlineGame) {
@@ -289,6 +311,7 @@ console.warn = function(...args) {
             alert('Please select a game to join.');
         }
     });
+
     document.addEventListener('DOMContentLoaded', function() {
         const chessboard = document.getElementById('chessboard');
 

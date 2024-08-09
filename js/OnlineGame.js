@@ -65,6 +65,9 @@ class OnlineGame extends ChessGame {
       case "opponentResigned":
         this.handleOpponentResigned();
         break;
+      case "chat":
+        this.displayChatMessage(data.message);
+        break;
       case "error":
         console.error("Server error:", data.message);
         alert("Error: " + data.message);
@@ -74,7 +77,20 @@ class OnlineGame extends ChessGame {
         console.log("Unhandled message type:", data.type);
     }
   }
-
+  sendChatMessage(text) {
+    this.sendMessage({
+      type: "chat",
+      gameId: this.gameId,
+      text: text,
+    });
+  }
+  displayChatMessage(message) {
+    const chatMessages = document.getElementById("chatMessages");
+    const newMessage = document.createElement("div");
+    newMessage.textContent = `${message.playerColor}: ${message.text}`;
+    chatMessages.appendChild(newMessage);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
   onDragStart(source, piece, position, orientation) {
     if (!this.opponentJoined) {
       return false;
@@ -111,22 +127,26 @@ class OnlineGame extends ChessGame {
   }
   updateUI(gameStarted) {
     super.updateUI(gameStarted);
-    document.getElementById("onlineGameOptions").style.display = gameStarted ? "none" : "block";
+    document.getElementById("onlineGameOptions").style.display = gameStarted
+      ? "none"
+      : "block";
     document.getElementById("startGame").style.display = "none";
     document.getElementById("createOnlineGame").disabled = gameStarted;
     document.getElementById("joinOnlineGame").disabled = gameStarted;
     document.getElementById("existingGames").disabled = gameStarted;
-    document.getElementById("resignGame").style.display = gameStarted ? "inline-block" : "none";
+    document.getElementById("resignGame").style.display = gameStarted
+      ? "inline-block"
+      : "none";
     document.getElementById("refreshGames").disabled = gameStarted;
   }
   syncTimer(startTime) {
     const currentTime = Date.now();
     const elapsedTime = Math.floor((currentTime - startTime) / 1000);
     const remainingTime = Math.max(this.gameLength * 60 - elapsedTime, 0);
-    
+
     this.whiteTime = remainingTime;
     this.blackTime = remainingTime;
-    
+
     this.updateTimerDisplay();
     this.startTimer();
   }

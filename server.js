@@ -1,6 +1,8 @@
 const WebSocket = require("ws");
+const Chat = require("./js/Chat");
 
 const wss = new WebSocket.Server({ port: 8080 });
+const chat = new Chat();
 
 let games = [];
 let gameIdCounter = 1;
@@ -35,6 +37,8 @@ wss.on("connection", (ws) => {
       case "resign":
         handleResign(ws, parsedMessage);
         break;
+      case "chat":
+        handleChat(ws, parsedMessage);
       default:
         console.error("Unknown message type:", parsedMessage.type);
     }
@@ -44,6 +48,32 @@ wss.on("connection", (ws) => {
     handlePlayerDisconnect(ws);
   });
 });
+function handleChat(ws, message) {
+  console.log("Processing chat message...");
+  const game = games.find((g) => g.id === parseInt(message.gameId));
+  if (game) {
+    const player = game.players.find((p) => p.socket === ws);
+    if (player) {
+      const chatMessage = chat.addMessage(
+        message.gameId,
+        player.color,
+        message.text
+      );
+      game.players.forEach((p) => {
+        p.socket.send(JSON.stringify({ type: "chat", message: chatMessage }));
+      });
+    } else {
+      ws.send(
+        JSON.stringify({
+          type: "error",
+          message: "You are not part of this game",
+        })
+      );
+    }
+  } else {
+    ws.send(JSON.stringify({ type: "error", message: "Game not found" }));
+  }
+}
 
 function handleCreateGame(ws, message) {
   console.log("Creating a new game...");
